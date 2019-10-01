@@ -18,14 +18,20 @@ def playlist_new():
 
 @app.route('/playlists', methods=['POST'])
 def playlists_submit():
-    '''Submit new playlist from the user'''
+    """Submit a new playlist."""
     playlist = {
         'title': request.form.get('title'),
         'description': request.form.get('description'),
         'videos': request.form.get('videos').split()
     }
-    playlists.insert_one(playlist)
-    return redirect(url_for('playlists_index'))
+    playlist_id = playlists.insert_one(playlist).inserted_id
+    return redirect(url_for('playlists_show', playlist_id=playlist_id))
+    }
+    @app.route('/playlists/<playlist_id>')
+    def playlists_show(playlist_id):
+    """Show a single playlist."""
+    playlist = playlists.find_one({'_id': ObjectId(playlist_id)})
+    return render_template('playlists_show.html', playlist=playlist)
 
 if __name__ == '__main__':
     app.run(debug=True)
