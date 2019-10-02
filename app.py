@@ -9,12 +9,12 @@ app = Flask(__name__)
 @app.route('/')
 def playlists_index():
     '''Show all the playlist the the user'''
-    return render_template('playlists_index.html', playlists=playlists.find())
+    return render_template('playlist_index.html', playlists=playlists.find())
 
 @app.route('/playlists/new')
 def playlist_new():
     '''Show form for creating a new playlist'''
-    return render_template('playlists_new.html')
+    return render_template('playlist_new.html')
 
 @app.route('/playlists', methods=['POST'])
 def playlists_submit():
@@ -25,13 +25,31 @@ def playlists_submit():
         'videos': request.form.get('videos').split()
     }
     playlist_id = playlists.insert_one(playlist).inserted_id
-    return redirect(url_for('playlists_show', playlist_id=playlist_id))
-    }
+    return redirect(url_for('playlist_show', playlist_id=playlist_id))
+
     @app.route('/playlists/<playlist_id>')
     def playlists_show(playlist_id):
-    """Show a single playlist."""
-    playlist = playlists.find_one({'_id': ObjectId(playlist_id)})
-    return render_template('playlists_show.html', playlist=playlist)
+    #"""Show a single playlist."""
+        playlist = playlists.find_one({'_id': ObjectId(playlist_id)})
+        return render_template('playlist_show.html', playlist=playlist)
+    @app.route('/playlists/<playlist_id>', methods=['POST'])
+    def playlists_update(playlist_id):
+    #"""Submit an edited playlist."""
+        updated_playlist = {
+            'title': request.form.get('title'),
+            'description': request.form.get('description'),
+            'videos': request.form.get('videos').split()
+            }
+        playlists.update_one(
+            {'_id': ObjectId(playlist_id)},
+            {'$set': updated_playlist})
+        return redirect(url_for('playlist_show', playlist_id=playlist_id))
+
+@app.route('/playlists/<playlist_id>/edit')
+def playlists_edit(playlist_id):
+    #"""Show the edit form for a playlist."""
+        playlist = playlists.find_one({'_id': ObjectId(playlist_id)})
+        return render_template('playlist_edit.html', playlist=playlist)
 
 if __name__ == '__main__':
     app.run(debug=True)
