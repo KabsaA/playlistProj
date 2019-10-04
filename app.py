@@ -1,14 +1,14 @@
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-
-client = MongoClient()
-db = client.Playlister
-playlists = db.playlists
-
 from flask import Flask, render_template, request, redirect, url_for
+import os
 
 app = Flask(__name__)
 
+host = os.environ.get('MONGODB_URI', 'mongodb://localhost:27017/Playlister')
+client = MongoClient(host=host)
+db = client.get_default_database()
+playlists = db.playlists
 # OUR MOCK ARRAY OF PROJECTS
 # app.py
 
@@ -57,7 +57,7 @@ def playlists_edit(playlist_id):
     '''Show the edit form for the user to edit a specific playlist'''
     playlist = playlists.find_one({'_id': ObjectId(playlist_id)})
     return render_template('playlists_edit.html', playlist=playlist, title="Edit Playlist")
-    
+
 @app.route('/playlists/<playlist_id>/delete', methods=['POST'])
 def playlists_delete(playlist_id):
     '''Delete playlist that user selected'''
