@@ -2,7 +2,10 @@
 <form>
     <fieldset>
         <legend>Add a Comment</legend>
-        <!-- TITLE -->
+        <form action='/playlists/comments' method='POST'>
+        <input type='hidden' value='{{ playlist._id }}' name='playlist_id'/>
+    <fieldset>
+        <!-- TITLE   <fieldset>-->
         <div class='form-group'>
             <label for='comment-title'>Title</label><br>
             <input class='form-control'
