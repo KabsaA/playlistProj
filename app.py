@@ -22,12 +22,12 @@ def video_url_creator(id_lst):
 @app.route('/')
 def playlists_index():
     """Show all playlists."""
-    return render_template('playlists_index.html', playlists=playlists.find())
+    return render_template('playlist_index.html', playlists=playlists.find())
 
 @app.route('/playlists/new')
 def playlists_new():
     """Create a new playlist."""
-    return render_template('playlists_new.html', playlist={}, title='New Playlist')
+    return render_template('playlist_new.html', playlist={}, title='New Playlist')
 
 @app.route('/playlists', methods=['POST'])
 def playlists_submit():
@@ -41,14 +41,14 @@ def playlists_submit():
         'video_ids': video_ids
     }
     playlist_id = playlists.insert_one(playlist).inserted_id
-    return redirect(url_for('playlists_show', playlist_id=playlist_id))
+    return redirect(url_for('playlist_show', playlist_id=playlist_id))
 
 @app.route('/playlists/<playlist_id>')
 def playlists_show(playlist_id):
     """Show a single playlist."""
     playlist = playlists.find_one({'_id': ObjectId(playlist_id)})
     playlist_comments = comments.find({'playlist_id': ObjectId(playlist_id)})
-    return render_template('playlists_show.html', playlist=playlist, comments=playlist_comments)
+    return render_template('playlist_show.html', playlist=playlist, comments=playlist_comments)
 
 @app.route('/playlists/<playlist_id>', methods=['POST'])
 def playlists_update(playlist_id):
@@ -64,20 +64,20 @@ def playlists_update(playlist_id):
     playlists.update_one(
         {'_id': ObjectId(playlist_id)},
         {'$set': updated_playlist})
-    return redirect(url_for('playlists_show', playlist_id=playlist_id))
+    return redirect(url_for('playlist_show', playlist_id=playlist_id))
 
 @app.route('/playlists/<playlist_id>/edit')
 def playlists_edit(playlist_id):
     """Show the edit form for a playlist."""
     playlist = playlists.find_one({'_id': ObjectId(playlist_id)})
-    return render_template('playlists_edit.html', playlist=playlist, title='Edit Playlist')
+    return render_template('playlist_edit.html', playlist=playlist, title='Edit Playlist')
 
 
 @app.route('/playlists/<playlist_id>/delete', methods=['POST'])
 def playlists_delete(playlist_id):
     """Delete one playlist."""
     playlists.delete_one({'_id': ObjectId(playlist_id)})
-    return redirect(url_for('playlists_index'))
+    return redirect(url_for('playlist_index'))
 
 
 @app.route('/playlists/comments', methods=['POST'])
@@ -90,14 +90,14 @@ def comments_new():
     }
     print(comment)
     comment_id = comments.insert_one(comment).inserted_id
-    return redirect(url_for('playlists_show', playlist_id=request.form.get('playlist_id')))
+    return redirect(url_for('playlist_show', playlist_id=request.form.get('playlist_id')))
 
 @app.route('/playlists/comments/<comment_id>', methods=['POST'])
 def comment_delete(comment_id):
     """Deletes a comment."""
     comment = comments.find_one({'_id': ObjectId(comment_id)})
     comments.delete_one({'_id': ObjectId(comment_id)})
-    return redirect(url_for('playlists_show', playlist_id=comment.get('playlist_id')))
+    return redirect(url_for('playlist_show', playlist_id=comment.get('playlist_id')))
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=os.environ.get('PORT', 5000))
